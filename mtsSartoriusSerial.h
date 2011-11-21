@@ -49,7 +49,9 @@ class CISST_EXPORT mtsSartoriusSerial: public mtsTaskContinuous
     /*! "System" Commands: */
     void SendPrintToggle(void);
 
+ public:
     bool GetWeight(double & weightInGrams, bool & stable);
+ protected:
     bool GetModel(std::string & modelName);
     bool ProcessBuffer(void);
     typedef const char * const_char_pointer;

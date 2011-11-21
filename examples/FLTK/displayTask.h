@@ -50,7 +50,13 @@ public:
     void Startup(void);
     void Run(void);
     void Cleanup(void) {};
-    bool GetExitFlag (void) { return ExitFlag;}
+    bool GetExitFlag (void) {
+        // update the UI, process UI events
+        if (Fl::check() == 0) {
+            ExitFlag = true;
+        }
+        return ExitFlag;
+    }
 };
 
 CMN_DECLARE_SERVICES_INSTANTIATION(displayTask);

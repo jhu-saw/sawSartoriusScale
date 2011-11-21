@@ -41,14 +41,15 @@ displayTask::displayTask(const std::string & taskName, double period):
 
 void displayTask::Configure(const std::string & CMN_UNUSED(filename))
 {
+    // make the UI visible
+    UI.show(0, NULL);
+
     // define some values, ideally these come from a configuration
     // file and then configure the user interface
 }
 
 void displayTask::Startup(void)
 {
-    // make the UI visible
-    UI.show(0, NULL);
 }
 
 void displayTask::Run(void)
@@ -72,9 +73,4 @@ void displayTask::Run(void)
     }
     UI.MaxWeight->value(this->MaxWeight);
     UI.WeightGraphic->value(weight < 0.0 ? 0.0 : weight / this->MaxWeight * 100.0);
-
-    // update the UI, process UI events
-    if (Fl::check() == 0) {
-        ExitFlag = true;
-    }
 }

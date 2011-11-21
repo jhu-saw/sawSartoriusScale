@@ -29,12 +29,13 @@ int main(void)
 {
     // log configuration
     cmnLogger::SetMask(CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
     cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
-    // add a log per thread
-    osaThreadedLogFile threadedLog("example1-");
-    cmnLogger::AddChannel(threadedLog, CMN_LOG_ALLOW_ALL);
+
     // specify a higher, more verbose log level for these classes
     cmnLogger::SetMaskClass("mtsSartoriusSerial", CMN_LOG_ALLOW_ALL);
+    cmnLogger::SetMaskClass("osaSerialPort", CMN_LOG_ALLOW_ALL);
 
     // create our two tasks
     const long PeriodDisplay = 10; // in milliseconds
@@ -44,32 +45,37 @@ int main(void)
     displayTaskObject->Configure();
     componentManager->AddComponent(displayTaskObject);
 
-    mtsSartoriusSerial * scaleObject = new mtsSartoriusSerial("Sartorius", "/dev/tty.KeySerial1");
+    // mtsSartoriusSerial * scaleObject = new mtsSartoriusSerial("Sartorius", "/dev/tty.KeySerial1");
+	mtsSartoriusSerial * scaleObject = new mtsSartoriusSerial("Sartorius", 4);
 	componentManager->AddComponent(scaleObject);
 
     // connect the tasks
     componentManager->Connect("Display", "Scale", "Sartorius", "Scale");
-    // create the tasks, i.e. find the commands
+    osaSleep(10.0 * cmn_s);
+
     componentManager->CreateAll();
-    // start the periodic Run
+    componentManager->WaitForStateAll(mtsComponentState::READY, 2.0 * cmn_s);
     componentManager->StartAll();
+    componentManager->WaitForStateAll(mtsComponentState::ACTIVE, 2.0 * cmn_s);
 
     // wait until the close button of the UI is pressed
     while (1) {
-        osaSleep(100.0 * cmn_ms); // sleep to save CPU
+        osaSleep(50.0 * cmn_ms); // sleep to save CPU
+        mtsDouble w;
+        bool stable;
+        scaleObject->GetWeight(w, stable);
+        std::cerr << w << std::endl;
         if (displayTaskObject->GetExitFlag()) {
             std::cout << "Quitting " << std::flush;
             break;
         }
     }
     // cleanup
+    /*
     componentManager->KillAll();
-
-    osaSleep(PeriodDisplay * 2);
-    while (!displayTaskObject->IsTerminated()) {
-        osaSleep(PeriodDisplay);
-        std::cout << "." << std::flush;
-    }
+    componentManager->WaitForStateAll(mtsComponentState::FINISHED, 2.0 * cmn_s);
     componentManager->Cleanup();
+    componentManager->Cleanup();
+    */
     return 0;
 }
