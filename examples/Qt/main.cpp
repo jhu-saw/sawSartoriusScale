@@ -18,11 +18,11 @@ http://www.cisst.org/cisst/license.txt.
 --- end cisst license ---
 */
 
-#include <cisstOSAbstraction/osaSleep.h>
 #include <sawSartoriusScale/mtsSartoriusSerial.h>
+#include <cisstMultiTask/mtsQtWidgetComponent.h>
 
-#include "displayTask.h"
-#include "displayUI.h"
+#include <QApplication>
+#include <QMainWindow>
 
 int main(int argc, char ** argv)
 {
@@ -61,12 +61,8 @@ int main(int argc, char ** argv)
     }
 
     // create our two tasks
-    const long PeriodDisplay = 10; // in milliseconds
     mtsComponentManager * componentManager = mtsComponentManager::GetInstance();
-    displayTask * displayTaskObject =
-        new displayTask("Display", PeriodDisplay * cmn_ms);
-    displayTaskObject->Configure();
-    componentManager->AddComponent(displayTaskObject);
+
 
     mtsSartoriusSerial * scaleObject;
     if (useFullPortName) {
@@ -79,18 +75,23 @@ int main(int argc, char ** argv)
 
 	componentManager->AddComponent(scaleObject);
 
-    // connect the tasks
-    componentManager->Connect("Display", "Scale", "Sartorius", "Scale");
+    QApplication app(argc, argv);
+
+    // create Qt widgets to display scale data
+    mtsQtWidgetComponent * componentWidget = new mtsQtWidgetComponent("QtWidgetComponent");
+    componentWidget->CreateWidgetsForComponent(scaleObject->GetName());
+    componentManager->AddComponent(componentWidget);
+
+    QMainWindow win;
+    win.setCentralWidget(componentWidget);
+    win.show();
 
     componentManager->CreateAll();
-    componentManager->WaitForStateAll(mtsComponentState::READY, 2.0 * cmn_s);
+    componentManager->WaitForStateAll(mtsComponentState::READY, 5.0 * cmn_s);
     componentManager->StartAll();
-    componentManager->WaitForStateAll(mtsComponentState::ACTIVE, 2.0 * cmn_s);
+    componentManager->WaitForStateAll(mtsComponentState::ACTIVE, 5.0 * cmn_s);
 
-    // wait until the close button of the UI is pressed
-    while (!displayTaskObject->GetExitFlag()) {
-        osaSleep(20.0 * cmn_ms);
-    }
+    app.exec();
 
     // cleanup
     componentManager->KillAll();

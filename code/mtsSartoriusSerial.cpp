@@ -191,10 +191,8 @@ void mtsSartoriusSerial::Startup(void)
 void mtsSartoriusSerial::Run(void)
 {
     this->ProcessQueuedCommands();
-
     bool stable;
     this->GetWeight(this->Weight.Data, stable);
-    std::cerr << Weight << std::endl;
     osaSleep(1.0 * cmn_ms); // way smaller than delay from scale
 }
 
