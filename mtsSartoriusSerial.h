@@ -32,6 +32,10 @@ http://www.cisst.org/cisst/license.txt.
 
 /*!
   \brief Device wrapper for Sartorius scale (model GC 2502)
+
+  This component assumes the following settings on the scale:
+  - Serial port rate 19200, 7 chars, Odd parity checking, One bit stop and hardware flow control
+  - Continuous print (menu 6 1 4)
 */
 
 class CISST_EXPORT mtsSartoriusSerial: public mtsTaskContinuous

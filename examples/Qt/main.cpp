@@ -48,7 +48,7 @@ int main(int argc, char ** argv)
         portName = "/dev/tty.KeySerial1";
 #else
         useFullPortName = false;
-        portName = 1;
+        portNumber = 1;
 #endif
     } else {
         if (argc == 2) {
