@@ -92,7 +92,11 @@ bool mtsSartoriusSerial::GetWeight(double & weightInGrams, bool & stable)
             enoughData = this->ProcessBuffer();
             weightInGrams = this->Weight.Data;
         } else {
-            CMN_LOG_CLASS_RUN_ERROR << "GetWeight: buffer is full" << std::endl;
+            // looks like we have an empty buffer, empty it and hope to re-sync with scale
+            CMN_LOG_CLASS_RUN_ERROR << "GetWeight: buffer is full (" << BUFFER_SIZE << " chars)" << std::endl;
+            this->BytesReadSoFar[BUFFER_SIZE] = '\0';
+            CMN_LOG_CLASS_RUN_DEBUG << "GetWeight: buffer contains: " << this->BytesReadSoFar << std::endl;
+            this->NbBytesReadSoFar = 0;
         }
         osaSleep(1.0 * cmn_ms); // tiny sleep
     }
@@ -199,5 +203,9 @@ void mtsSartoriusSerial::Run(void)
 
 void mtsSartoriusSerial::Cleanup(void)
 {
-    this->SerialPort.Close();
+    CMN_LOG_CLASS_INIT_DEBUG << "Cleanup called" << std::endl;
+    if (!this->SerialPort.Close()) {
+        CMN_LOG_CLASS_INIT_ERROR << "Cleanup: can't close serial port \""
+                                 << this->SerialPort.GetPortName() << "\"" << std::endl;
+    }
 }
