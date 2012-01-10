@@ -30,7 +30,7 @@ if (cisst_FOUND_AS_REQUIRED)
                ../sawSartoriusScaleExport.h
                mtsSartoriusSerial.cpp
                ../mtsSartoriusSerial.h)
-
+  set_property (TARGET sawSartoriusScale PROPERTY FOLDER "sawSartoriusScale")
   cisst_target_link_libraries (sawSartoriusScale ${REQUIRED_CISST_LIBRARIES})
 
   # create/configure file for find_package (sawSartoriusScale)
