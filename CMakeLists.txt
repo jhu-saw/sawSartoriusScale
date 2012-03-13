@@ -1,7 +1,7 @@
 #
 # $Id$
 #
-# (C) Copyright 2011 Johns Hopkins University (JHU), All Rights
+# (C) Copyright 2011-2012 Johns Hopkins University (JHU), All Rights
 # Reserved.
 #
 # --- begin cisst license - do not edit ---
@@ -11,6 +11,8 @@
 # http://www.cisst.org/cisst/license.txt.
 #
 # --- end cisst license ---
+
+project (sawSartoriusScale)
 
 add_subdirectory (code)
 add_subdirectory (examples)
