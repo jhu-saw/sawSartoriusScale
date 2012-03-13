@@ -1,7 +1,7 @@
 #
 # $Id$
 #
-# (C) Copyright 2009-2011 Johns Hopkins University (JHU), All Rights
+# (C) Copyright 2009-2012 Johns Hopkins University (JHU), All Rights
 # Reserved.
 #
 # --- begin cisst license - do not edit ---
@@ -26,7 +26,7 @@ if (cisst_FOUND_AS_REQUIRED)
   include (${CISST_USE_FILE})
 
   # sawSartoriusScale has been compiled within cisst, we should find it automatically
-  find_package (sawSartoriusScale REQUIRED HINTS "${cisst_saw_BINARY_DIR}/saw/components")
+  cisst_find_saw_component (sawSartoriusScale REQUIRED)
 
   if (sawSartoriusScale_FOUND)
 
