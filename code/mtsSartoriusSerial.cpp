@@ -94,7 +94,7 @@ bool mtsSartoriusSerial::GetWeight(double & weightInGrams, bool & stable)
         } else {
             // looks like we have an empty buffer, empty it and hope to re-sync with scale
             CMN_LOG_CLASS_RUN_ERROR << "GetWeight: buffer is full (" << BUFFER_SIZE << " chars)" << std::endl;
-            this->BytesReadSoFar[BUFFER_SIZE] = '\0';
+            this->BytesReadSoFar[BUFFER_SIZE - 1] = '\0';
             CMN_LOG_CLASS_RUN_DEBUG << "GetWeight: buffer contains: " << this->BytesReadSoFar << std::endl;
             this->NbBytesReadSoFar = 0;
         }
