@@ -9,12 +9,22 @@
 #
 # --- end cisst license ---
 
-cmake_minimum_required (VERSION 3.10)
-project (sawSartoriusScaleExamples VERSION 1.1.0)
+cmake_minimum_required(VERSION 3.10)
+project (sartorius_scale_ros VERSION 1.1.0)
 
-set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+## find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package (catkin REQUIRED
+              COMPONENTS
+              cisst_ros_crtk
+              roscpp
+              roslib
+              )
 
 # create a list of required cisst libraries
 set (REQUIRED_CISST_LIBRARIES cisstCommon
@@ -23,21 +33,26 @@ set (REQUIRED_CISST_LIBRARIES cisstCommon
                               cisstNumerical
                               cisstOSAbstraction
                               cisstMultiTask
-                              cisstMultiTaskQt
+			      cisstMultiTaskQt
                               cisstParameterTypes
                               cisstParameterTypesQt
-                              cisstQt)
+			      cisstQt)
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.1.0 COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.1.0 REQUIRED ${REQUIRED_CISST_LIBRARIES})
 
-if (cisst_FOUND_AS_REQUIRED)
+if (cisst_FOUND)
 
   # load cisst configuration
   include (${CISST_USE_FILE})
 
-  # catkin/ROS paths
-  cisst_set_output_path ()
+  # include_directories(include)
+  include_directories (${catkin_INCLUDE_DIRS})
+
+  file (MAKE_DIRECTORY "${CATKIN_DEVEL_PREFIX}/include")
+
+  catkin_package (INCLUDE_DIRS "${CATKIN_DEVEL_PREFIX}/include"
+                  CATKIN_DEPENDS cisst_ros_crtk roscpp roslib)
 
   # sawSartoriusScale has been compiled within cisst, we should find it automatically
   find_package (sawSartoriusScale REQUIRED)
@@ -45,26 +60,19 @@ if (cisst_FOUND_AS_REQUIRED)
   if (sawSartoriusScale_FOUND)
 
     # sawSartoriusScale configuration
-    include_directories (${sawSartoriusScale_INCLUDE_DIR})
+    include_directories (${sawSartoriusScale_INCLUDE_DIR} ${sartorius_scale_ros_SOURCE_DIR})
     link_directories (${sawSartoriusScale_LIBRARY_DIR})
 
-    add_executable (sawSartoriusScaleQtExample mainQt.cpp)
-    set_target_properties (sawSartoriusScaleQtExample PROPERTIES
-                           COMPONENT sawSartoriusScale-Examples
-                           FOLDER "sawSartoriusScale")
+    add_executable (sartorius_scale mainQt.cpp)
 
     # link against non cisst libraries and saw components
-    target_link_libraries (sawSartoriusScaleQtExample
-                           ${sawSartoriusScale_LIBRARIES})
+    target_link_libraries (sartorius_scale
+      ${sawSartoriusScale_LIBRARIES}
+      ${catkin_LIBRARIES})
 
     # link against cisst libraries (and dependencies)
-    cisst_target_link_libraries (sawSartoriusScaleQtExample ${REQUIRED_CISST_LIBRARIES})
-
-    install (TARGETS sawSartoriusScaleQtExample COMPONENT sawSartoriusScale-Examples
-             RUNTIME DESTINATION bin
-             LIBRARY DESTINATION lib
-             ARCHIVE DESTINATION lib)
+    cisst_target_link_libraries (sartorius_scale ${REQUIRED_CISST_LIBRARIES})
 
   endif (sawSartoriusScale_FOUND)
 
-endif (cisst_FOUND_AS_REQUIRED)
+endif (cisst_FOUND)

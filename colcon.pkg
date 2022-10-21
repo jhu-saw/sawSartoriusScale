@@ -1,0 +1,4 @@
+{
+  "name": "sawSartoriusScaleAll",
+  "dependencies": ["cisst"]
+}

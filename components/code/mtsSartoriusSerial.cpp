@@ -2,11 +2,10 @@
 /* ex: set filetype=cpp softtabstop=4 shiftwidth=4 tabstop=4 cindent expandtab: */
 
 /*
-
   Author(s): Anton Deguet
   Created on: 2009-04-01
 
-  (C) Copyright 2009-2011 Johns Hopkins University (JHU), All Rights Reserved.
+  (C) Copyright 2009-2022 Johns Hopkins University (JHU), All Rights Reserved.
 
 --- begin cisst license - do not edit ---
 
@@ -48,7 +47,7 @@ mtsSartoriusSerial::mtsSartoriusSerial(const std::string & taskName,
 
 void mtsSartoriusSerial::SetSerialPortDefaults(void)
 {
-    this->SerialPort.SetBaudRate(osaSerialPort::BaudRate19200);
+    this->SerialPort.SetBaudRate(osaSerialPort::BaudRate9600);
     this->SerialPort.SetCharacterSize(osaSerialPort::CharacterSize7);
     this->SerialPort.SetParityChecking(osaSerialPort::ParityCheckingOdd);
     this->SerialPort.SetStopBits(osaSerialPort::StopBitsOne);
@@ -60,17 +59,23 @@ void mtsSartoriusSerial::SetSerialPortDefaults(void)
 void mtsSartoriusSerial::SetupInterface(void)
 {
     // add weight to state table
-    StateTable.AddData(this->Weight, "Weight");
+    StateTable.AddData(m_weight, "Weight");
+    StateTable.AddData(m_measured_cf, "measured_cf");
     // add one interface, this will create an mtsTaskInterface
-    mtsInterfaceProvided * providedInterface = AddInterfaceProvided("Scale");
-    if (providedInterface) {
+    mInterface = AddInterfaceProvided("Scale");
+    if (mInterface) {
+        // system commands
+        mInterface->AddMessageEvents();
+        mInterface->AddCommandReadState(StateTable, StateTable.PeriodStats,
+                                                "period_statistics");
         // add command to access state table values to the interface
-        providedInterface->AddCommandReadState(this->StateTable, this->Weight, "GetWeight");
+        mInterface->AddCommandReadState(this->StateTable, m_weight, "GetWeight");
+        mInterface->AddCommandReadState(this->StateTable, m_measured_cf, "measured_cf");
     }
 }
 
 
-bool mtsSartoriusSerial::GetWeight(double & weightInGrams, bool & stable)
+bool mtsSartoriusSerial::GetWeight(double & weightInGrams)
 {
     CMN_LOG_CLASS_RUN_DEBUG << "GetWeight: entering method" << std::endl;
     unsigned int nbTrials;
@@ -88,8 +93,8 @@ bool mtsSartoriusSerial::GetWeight(double & weightInGrams, bool & stable)
             CMN_LOG_CLASS_RUN_DEBUG << "GetWeight: buffer now contains "
                                     << this->NbBytesReadSoFar << " characters"
                                     << std::endl;
-            enoughData = this->ProcessBuffer();
-            weightInGrams = this->Weight.Data;
+            enoughData = ProcessBuffer();
+            weightInGrams = m_weight;
         } else {
             // looks like we have an empty buffer, empty it and hope to re-sync with scale
             CMN_LOG_CLASS_RUN_ERROR << "GetWeight: buffer is full (" << BUFFER_SIZE << " chars)" << std::endl;
@@ -100,7 +105,7 @@ bool mtsSartoriusSerial::GetWeight(double & weightInGrams, bool & stable)
         osaSleep(1.0 * cmn_ms); // tiny sleep
     }
     if (!enoughData) {
-        CMN_LOG_RUN_VERBOSE << "GetWeight failed, not enought data" << std::endl;
+        CMN_LOG_CLASS_RUN_VERBOSE << "GetWeight failed, not enought data" << std::endl;
         return false;
     }
     return true;
@@ -135,8 +140,7 @@ bool mtsSartoriusSerial::ProcessBuffer(void)
             CMN_LOG_CLASS_RUN_DEBUG << "ProcessBuffer: found eol in buffer at position " << index << std::endl;
             // test if the buffer already has 16 bytes
             if (index < 14) {
-                CMN_LOG_RUN_VERBOSE << "ProcessBuffer: partial message found in buffer, this should not happen except during initialization"
-                                    << std::endl;
+                mInterface->SendWarning(this->GetName() + " ProcessBuffer: partial message found in buffer, this should not happen except during initialization");
             } else {
                 // get all 16 chars to be processed and removed from buffer
                 memcpy(toProcess, /* destination buffer */
@@ -148,8 +152,7 @@ bool mtsSartoriusSerial::ProcessBuffer(void)
             // copy what's left from buffer in temporary buffer
             notYetProcessedBytes = this->NbBytesReadSoFar - (index + 2);
             if (notYetProcessedBytes < 0) {
-                CMN_LOG_CLASS_RUN_ERROR << "ProcessBuffer: negative number of bytes in buffer ("
-                                        << notYetProcessedBytes << "), this should never happen" << std::endl;
+                mInterface->SendError(this->GetName() + " ProcessBuffer: negative number of bytes in buffer");
                 return false;
             } else {
                 memcpy(this->TempBuffer,
@@ -174,19 +177,20 @@ void mtsSartoriusSerial::UpdateStateTable(const const_char_pointer & buffer)
     }
     std::stringstream stdBuffer;
     stdBuffer << buffer + 1;
-    stdBuffer >> this->Weight;
+    stdBuffer >> m_weight;
     if (buffer[0] == '-') {
-        this->Weight = - this->Weight;
+        m_weight = - m_weight;
     }
-    CMN_LOG_CLASS_RUN_DEBUG << "UpdateStateTable: found weight : " << this->Weight << std::endl;
+    m_measured_cf.Force().Z() = -9.81 * 1000.0 * m_weight;
+    CMN_LOG_CLASS_RUN_DEBUG << "UpdateStateTable: found weight : " << m_weight << std::endl;
 }
 
 
 void mtsSartoriusSerial::Startup(void)
 {
     if (!this->SerialPort.Open()) {
-        CMN_LOG_CLASS_INIT_ERROR << "Startup: can't open serial port \""
-                                 << this->SerialPort.GetPortName() << "\"" << std::endl;
+        mInterface->SendError(this->GetName() + " Startup: can't open serial port "
+                              + this->SerialPort.GetPortName());
     }
 }
 
@@ -194,8 +198,7 @@ void mtsSartoriusSerial::Startup(void)
 void mtsSartoriusSerial::Run(void)
 {
     this->ProcessQueuedCommands();
-    bool stable;
-    this->GetWeight(this->Weight.Data, stable);
+    this->GetWeight(m_weight);
     osaSleep(1.0 * cmn_ms); // way smaller than delay from scale
 }
 
