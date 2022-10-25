@@ -99,6 +99,7 @@ bool mtsSartoriusSerial::GetWeight(double & weightInGrams)
             // looks like we have an empty buffer, empty it and hope to re-sync with scale
             CMN_LOG_CLASS_RUN_ERROR << "GetWeight: buffer is full (" << BUFFER_SIZE << " chars)" << std::endl;
             this->BytesReadSoFar[BUFFER_SIZE - 1] = '\0';
+            m_measured_cf.Valid() = false;
             CMN_LOG_CLASS_RUN_DEBUG << "GetWeight: buffer contains: " << this->BytesReadSoFar << std::endl;
             this->NbBytesReadSoFar = 0;
         }
@@ -153,6 +154,7 @@ bool mtsSartoriusSerial::ProcessBuffer(void)
             notYetProcessedBytes = this->NbBytesReadSoFar - (index + 2);
             if (notYetProcessedBytes < 0) {
                 mInterface->SendError(this->GetName() + " ProcessBuffer: negative number of bytes in buffer");
+                m_measured_cf.Valid() = false;
                 return false;
             } else {
                 memcpy(this->TempBuffer,
@@ -181,7 +183,8 @@ void mtsSartoriusSerial::UpdateStateTable(const const_char_pointer & buffer)
     if (buffer[0] == '-') {
         m_weight = - m_weight;
     }
-    m_measured_cf.Force().Z() = -9.81 * 1000.0 * m_weight;
+    m_measured_cf.Force().Z() = -9.81 * m_weight / 1000.0;
+    m_measured_cf.Valid() = true;
     CMN_LOG_CLASS_RUN_DEBUG << "UpdateStateTable: found weight : " << m_weight << std::endl;
 }
 
