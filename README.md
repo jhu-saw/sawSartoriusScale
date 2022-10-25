@@ -1,6 +1,6 @@
 # sawSartoriusScale
 
-This SAW component contains code for interfacing with Sartorius scales (www.sartorius.com/).  It compiles on Windows, Linux and likely MacOS.
+This SAW component contains code for interfacing with Sartorius scales (www.sartorius.com).  It has been tested on a Sartorius GC 2502 with a serial connection (USB).  It compiles on Windows, Linux and likely MacOS.
 
 The `ros` folder contains code for a ROS node that interfaces with the sawSartoriusScale component and publishes the measured force (based on weight).  To build the ROS node, make sure you use `catkin build`.
 
