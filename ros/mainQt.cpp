@@ -5,7 +5,7 @@
   Author(s):  Anton Deguet
   Created on: 2017-12-04
 
-  (C) Copyright 2017-2022 Johns Hopkins University (JHU), All Rights Reserved.
+  (C) Copyright 2017-2024 Johns Hopkins University (JHU), All Rights Reserved.
 
 --- begin cisst license - do not edit ---
 
@@ -27,8 +27,13 @@ http://www.cisst.org/cisst/license.txt.
 
 #include <QApplication>
 
-#include <cisst_ros_crtk/mts_ros_crtk_bridge_provided.h>
-#include <ros/ros.h>
+#if ROS1
+#include <cisst_ros_bridge/mtsROSBridge.h>
+#include <cisst_ros_crtk/mts_ros_crtk_bridge.h>
+#elif ROS2
+#include <cisst_ros2_bridge/mtsROSBridge.h>
+#include <cisst_ros2_crtk/mts_ros_crtk_bridge.h>
+#endif
 
 int main(int argc, char * argv[])
 {
@@ -37,11 +42,16 @@ int main(int argc, char * argv[])
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskFunction(CMN_LOG_ALLOW_ALL);
     cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
-    cmnLogger::AddChannel(std::cout, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
+    cmnLogger::AddChannel(std::cerr, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
 
     // create ROS node handle
-    ros::init(argc, argv, "sartorius_scale_ros", ros::init_options::AnonymousName);
-    ros::NodeHandle rosNodeHandle;
+#if ROS1
+    ros::init(argc, argv, "sartorius_scale", ros::init_options::AnonymousName);
+    ros::NodeHandle rosNode;
+#elif ROS2
+    rclcpp::init(argc, argv);
+    auto rosNode = std::make_shared<rclcpp::Node>("sartorius_scale");
+#endif
 
     // parse options
     cmnCommandLineOptions options;
@@ -59,17 +69,14 @@ int main(int argc, char * argv[])
     options.AddOptionNoValue("D", "dark-mode",
                              "replaces the default Qt palette with darker colors");
 
-    typedef std::list<std::string> managerConfigType;
-    managerConfigType managerConfig;
+    std::list<std::string> managerConfig;
     options.AddOptionMultipleValues("m", "component-manager",
                                     "JSON file to configure component manager",
                                     cmnCommandLineOptions::OPTIONAL_OPTION, &managerConfig);
 
     // check that all required options have been provided
     std::string errorMessage;
-    if (!options.Parse(argc, argv, errorMessage)) {
-        std::cerr << "Error: " << errorMessage << std::endl;
-        options.PrintUsage(std::cerr);
+    if (!options.Parse(argc, argv, std::cerr)) {
         return -1;
     }
     std::string arguments;
@@ -84,7 +91,6 @@ int main(int argc, char * argv[])
         cmnLogger::SetMaskDefaultLog(CMN_LOG_ALLOW_ALL);
         cmnLogger::SetMaskClass("mtsSartoriusSerial", CMN_LOG_ALLOW_ALL);
         cmnLogger::SetMaskClass("osaSerialPort", CMN_LOG_ALLOW_ALL);
-        cmnLogger::AddChannel(std::cerr, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
     }
 
     // create a Qt user interface
@@ -122,8 +128,13 @@ int main(int argc, char * argv[])
     tabWidget->addTab(systemWidget, "System");
 
     // ROS CRTK bridge
+#if ROS1
     mts_ros_crtk_bridge_provided * crtk_bridge
-        = new mts_ros_crtk_bridge_provided("sartorius_scale_crtk_bridge", &rosNodeHandle);
+        = new mts_ros_crtk_bridge_provided("sartorius_scale_crtk_bridge", &rosNode);
+#elif ROS2
+    mts_ros_crtk_bridge * crtk_bridge
+        = new mts_ros_crtk_bridge("sartorius_scale_crtk_bridge", rosNode);
+#endif
     crtk_bridge->bridge_interface_provided(scale->GetName(), "Scale",
                                            rosPeriod);
     componentManager->AddComponent(crtk_bridge);
@@ -147,7 +158,11 @@ int main(int argc, char * argv[])
     cmnLogger::Kill();
 
     // stop ROS node
+#if ROS1
     ros::shutdown();
+#elif ROS2
+    rclcpp::shutdown();
+#endif
 
     // kill all components and perform cleanup
     componentManager->KillAllAndWait(5.0 * cmn_s);

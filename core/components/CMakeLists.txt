@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2011-2022 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2011-2024 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -12,10 +12,6 @@
 cmake_minimum_required (VERSION 3.10)
 project (sawSartoriusScale VERSION 1.1.0)
 
-set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_CXX_EXTENSIONS OFF)
-
 # create a list of required cisst libraries
 set (REQUIRED_CISST_LIBRARIES cisstCommon
                               cisstVector
@@ -23,7 +19,7 @@ set (REQUIRED_CISST_LIBRARIES cisstCommon
                               cisstMultiTask
                               cisstParameterTypes)
 
-find_package (cisst 1.1.0 REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.2.1 REQUIRED ${REQUIRED_CISST_LIBRARIES})
 
 if (cisst_FOUND_AS_REQUIRED)
 
@@ -61,8 +57,7 @@ if (cisst_FOUND_AS_REQUIRED)
            "${sawSartoriusScale_SOURCE_DIR}/include/sawSartoriusScale"
            "${sawSartoriusScale_BINARY_DIR}/include/sawSartoriusScale"
            DESTINATION include
-           COMPONENT sawSartoriusScale-dev
-           PATTERN .svn EXCLUDE)
+           COMPONENT sawSartoriusScale-dev)
 
   install (TARGETS sawSartoriusScale COMPONENT sawSartoriusScale
            RUNTIME DESTINATION bin

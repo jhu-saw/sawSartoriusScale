@@ -1,26 +1,32 @@
-<package>
-  <name>sartorius_scale_ros</name>
+<?xml version="1.0"?>
+<package format="3">
+  <name>sartorius_scale</name>
   <version>1.1.0</version>
-  <description>
-  sawSartoriusScale ROS
-  </description>
+  <description>sawSartoriusScale ROS package</description>
   <maintainer email="anton.deguet@jhu.edu">Anton Deguet</maintainer>
+  <author email="anton.deguet@jhu.edu">Anton Deguet</author>
   <license>cisst</license>
   <url>https://github.com/jhu-saw/sawSartoriusScale</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
 
-  <build_depend>saw_sartorius_scale</build_depend>
-  <build_depend>cisst_ros_crtk</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>roslib</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">saw_sartorius_scale</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">cisst_ros_crtk</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">roscpp</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">roslib</build_depend>
 
-  <run_depend>saw_sartorius_scale</run_depend>
-  <run_depend>cisst_ros_crtk</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>roslib</run_depend>
+  <exec_depend condition="$ROS_VERSION == 1">saw_sartorius_scale</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">cisst_ros_crtk</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">roscpp</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">roslib</exec_depend>
+
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake_python</buildtool_depend>
+  <depend condition="$ROS_VERSION == 2">rclcpp</depend>
+  <depend condition="$ROS_VERSION == 2">cisst_ros2_crtk</depend>
 
   <export>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
   </export>
 
 </package>

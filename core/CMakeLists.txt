@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2011-2022 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2011-2024 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -10,7 +10,7 @@
 # --- end cisst license ---
 
 cmake_minimum_required(VERSION 3.10)
-project (sawSartoriusScaleAll VERSION 1.1.0)
+project (sawSartoriusScaleCore VERSION 1.1.0)
 
 find_package (cisst REQUIRED)
 include (${CISST_USE_FILE})
@@ -21,7 +21,7 @@ cisst_cpack_settings (
 add_subdirectory (components)
 
 # Examples
-set (sawSartoriusScale_DIR "${sawSartoriusScaleAll_BINARY_DIR}/components")
+set (sawSartoriusScale_DIR "${sawSartoriusScaleCore_BINARY_DIR}/components")
 add_subdirectory (examples)
 
 include (CPack)
