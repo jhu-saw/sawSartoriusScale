@@ -1,0 +1,4 @@
+{
+  "name": "sartorius_scale",
+  "dependencies": ["cisst", "sawSartoriusScaleCore"]
+}

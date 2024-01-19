@@ -2,7 +2,6 @@
 /* ex: set filetype=cpp softtabstop=4 shiftwidth=4 tabstop=4 cindent expandtab: */
 
 /*
-
   Author(s):  Anton Deguet
   Created on: 2011-11-15
 
@@ -27,4 +26,3 @@ http://www.cisst.org/cisst/license.txt.
 
 // avoid impact on other modules
 #undef CISST_THIS_LIBRARY_AS_DLL
-

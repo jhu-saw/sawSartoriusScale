@@ -1,7 +1,5 @@
 #
-#
-# (C) Copyright 2011-2012 Johns Hopkins University (JHU), All Rights
-# Reserved.
+# (C) Copyright 2011-2024 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -11,50 +9,60 @@
 #
 # --- end cisst license ---
 
-# Core library
+cmake_minimum_required (VERSION 3.10)
+project (sawSartoriusScale VERSION 1.1.0)
+
+# create a list of required cisst libraries
 set (REQUIRED_CISST_LIBRARIES cisstCommon
                               cisstVector
                               cisstOSAbstraction
                               cisstMultiTask
                               cisstParameterTypes)
 
-find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.2.1 REQUIRED ${REQUIRED_CISST_LIBRARIES})
 
 if (cisst_FOUND_AS_REQUIRED)
 
   # load cisst configuration
   include (${CISST_USE_FILE})
 
+  # catkin/ROS paths
+  cisst_set_output_path ()
+
   # create/configure file for find_package (sawSartoriusScale)
-  set (sawSartoriusScale_INCLUDE_DIR "${sawSartoriusScale_SOURCE_DIR}/include")
+  set (sawSartoriusScale_INCLUDE_DIR
+       "${sawSartoriusScale_SOURCE_DIR}/include"
+       "${sawSartoriusScale_BINARY_DIR}/include")
+  set (sawSartoriusScale_HEADER_DIR "${sawSartoriusScale_SOURCE_DIR}/include/sawSartoriusScale")
   set (sawSartoriusScale_LIBRARY_DIR "${LIBRARY_OUTPUT_PATH}")
   set (sawSartoriusScale_LIBRARIES sawSartoriusScale)
 
-  include_directories (${sawSartoriusScale_INCLUDE_DIR})
-  set (sawSartoriusScale_HEADER_DIR "${sawSartoriusScale_INCLUDE_DIR}/sawSartoriusScale")
+  # Allow c++ code to find local header files
+  include_directories (${sawSartoriusScale_INCLUDE_DIR} ${sawSartoriusScale_BINARY_DIR})
+
+  # add all config files for this component
+  cisst_add_config_files (sawSartoriusScale)
+
   add_library (sawSartoriusScale
                ${sawSartoriusScale_HEADER_DIR}/sawSartoriusScaleExport.h
-               mtsSartoriusSerial.cpp
+               code/mtsSartoriusSerial.cpp
                ${sawSartoriusScale_HEADER_DIR}/mtsSartoriusSerial.h)
-  set_property (TARGET sawSartoriusScale PROPERTY FOLDER "sawSartoriusScale")
+  set_target_properties (sawSartoriusScale PROPERTIES
+                         VERSION ${sawSartoriusScale_VERSION}
+                         FOLDER "sawSartoriusScale")
   cisst_target_link_libraries (sawSartoriusScale ${REQUIRED_CISST_LIBRARIES})
 
-  configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/sawSartoriusScaleConfig.cmake.in"
-                  "${sawSartoriusScale_BINARY_DIR}/sawSartoriusScaleConfig.cmake"
-                   @ONLY@)
   # Install target for headers and library
   install (DIRECTORY
-           ${sawSartoriusScale_INCLUDE_DIR}/sawSartoriusScale
+           "${sawSartoriusScale_SOURCE_DIR}/include/sawSartoriusScale"
+           "${sawSartoriusScale_BINARY_DIR}/include/sawSartoriusScale"
            DESTINATION include
-           PATTERN .svn EXCLUDE)
+           COMPONENT sawSartoriusScale-dev)
 
-  install (TARGETS sawSartoriusScale
+  install (TARGETS sawSartoriusScale COMPONENT sawSartoriusScale
            RUNTIME DESTINATION bin
            LIBRARY DESTINATION lib
            ARCHIVE DESTINATION lib)
-
-  install (FILES "${sawSartoriusScale_BINARY_DIR}/sawSartoriusScaleConfig.cmake"
-           DESTINATION "${CISST_CMAKE_INSTALL_SUFFIX}/saw")
 
 else (cisst_FOUND_AS_REQUIRED)
   message ("Information: code in ${CMAKE_CURRENT_SOURCE_DIR} will not be compiled, it requires ${REQUIRED_CISST_LIBRARIES}")

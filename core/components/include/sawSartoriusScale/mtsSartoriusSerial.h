@@ -2,11 +2,10 @@
 /* ex: set filetype=cpp softtabstop=4 shiftwidth=4 tabstop=4 cindent expandtab: */
 
 /*
-
   Author(s): Anton Deguet
   Created on: 2009-03-27
 
-  (C) Copyright 2009-2011 Johns Hopkins University (JHU), All Rights Reserved.
+  (C) Copyright 2009-2022 Johns Hopkins University (JHU), All Rights Reserved.
 
 --- begin cisst license - do not edit ---
 
@@ -24,7 +23,7 @@ http://www.cisst.org/cisst/license.txt.
 #include <cisstCommon/cmnPortability.h>
 #include <cisstOSAbstraction/osaSerialPort.h>
 #include <cisstMultiTask/mtsTaskContinuous.h>
-#include <cisstMultiTask/mtsGenericObjectProxy.h>
+#include <cisstParameterTypes/prmForceCartesianGet.h>
 
 // Always include last
 #include <sawSartoriusScale/sawSartoriusScaleExport.h>
@@ -33,7 +32,7 @@ http://www.cisst.org/cisst/license.txt.
   \brief Device wrapper for Sartorius scale (model GC 2502)
 
   This component assumes the following settings on the scale:
-  - Serial port rate 19200, 7 chars, Odd parity checking, One bit stop and hardware flow control
+  - Serial port rate 9600, 7 chars, Odd parity checking, One bit stop and hardware flow control
   - Continuous print (menu 6 1 4)
 */
 
@@ -53,15 +52,18 @@ class CISST_EXPORT mtsSartoriusSerial: public mtsTaskContinuous
     void SendPrintToggle(void);
 
  public:
-    bool GetWeight(double & weightInGrams, bool & stable);
+    bool GetWeight(double & weightInGrams);
  protected:
     bool GetModel(std::string & modelName);
     bool ProcessBuffer(void);
     typedef const char * const_char_pointer;
     void UpdateStateTable(const const_char_pointer & buffer);
 
+    mtsInterfaceProvided * mInterface = nullptr;
+
     /*! Placeholder for last weigth read */
-    mtsDouble Weight;
+    double m_weight;
+    prmForceCartesianGet m_measured_cf;
 
     /*! Replies are limited to 16 chars, to be tested */
     enum {BUFFER_SIZE = 512};
@@ -73,7 +75,6 @@ class CISST_EXPORT mtsSartoriusSerial: public mtsTaskContinuous
     osaSerialPort SerialPort;
 
  public:
-
     mtsSartoriusSerial(const std::string & taskName,
                        const std::string & serialPortName);
     mtsSartoriusSerial(const std::string & taskName,
