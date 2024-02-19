@@ -27,13 +27,8 @@ http://www.cisst.org/cisst/license.txt.
 
 #include <QApplication>
 
-#if ROS1
 #include <cisst_ros_bridge/mtsROSBridge.h>
 #include <cisst_ros_crtk/mts_ros_crtk_bridge.h>
-#elif ROS2
-#include <cisst_ros2_bridge/mtsROSBridge.h>
-#include <cisst_ros2_crtk/mts_ros_crtk_bridge.h>
-#endif
 
 int main(int argc, char * argv[])
 {
@@ -45,13 +40,8 @@ int main(int argc, char * argv[])
     cmnLogger::AddChannel(std::cerr, CMN_LOG_ALLOW_ERRORS_AND_WARNINGS);
 
     // create ROS node handle
-#if ROS1
-    ros::init(argc, argv, "sartorius_scale", ros::init_options::AnonymousName);
-    ros::NodeHandle rosNode;
-#elif ROS2
-    rclcpp::init(argc, argv);
-    auto rosNode = std::make_shared<rclcpp::Node>("sartorius_scale");
-#endif
+    cisst_ral::ral ral(argc, argv, "sartorius_scale");
+    auto rosNode = ral.node();
 
     // parse options
     cmnCommandLineOptions options;
@@ -128,13 +118,9 @@ int main(int argc, char * argv[])
     tabWidget->addTab(systemWidget, "System");
 
     // ROS CRTK bridge
-#if ROS1
     mts_ros_crtk_bridge_provided * crtk_bridge
-        = new mts_ros_crtk_bridge_provided("sartorius_scale_crtk_bridge", &rosNode);
-#elif ROS2
-    mts_ros_crtk_bridge * crtk_bridge
-        = new mts_ros_crtk_bridge("sartorius_scale_crtk_bridge", rosNode);
-#endif
+        = new mts_ros_crtk_bridge_provided("sartorius_scale_crtk_bridge", rosNode);
+
     crtk_bridge->bridge_interface_provided(scale->GetName(), "Scale",
                                            rosPeriod);
     componentManager->AddComponent(crtk_bridge);
@@ -158,11 +144,7 @@ int main(int argc, char * argv[])
     cmnLogger::Kill();
 
     // stop ROS node
-#if ROS1
-    ros::shutdown();
-#elif ROS2
-    rclcpp::shutdown();
-#endif
+    cisst_ral::shutdown();
 
     // kill all components and perform cleanup
     componentManager->KillAllAndWait(5.0 * cmn_s);

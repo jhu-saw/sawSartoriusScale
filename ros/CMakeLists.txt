@@ -33,7 +33,7 @@ else (catkin_FOUND)
     set (ROS_VERSION 2)
     set (REQUIRED_AMENT_PACKAGES
       rclcpp std_msgs std_srvs geometry_msgs sensor_msgs diagnostic_msgs
-      tf2_ros tf2_msgs cisst_msgs crtk_msgs cisst_ros2_bridge cisst_ros2_crtk)
+      tf2_ros tf2_msgs cisst_msgs crtk_msgs cisst_ros_bridge cisst_ros_crtk)
     foreach (_pkg ${REQUIRED_AMENT_PACKAGES})
       find_package (${_pkg} REQUIRED)
     endforeach ()
