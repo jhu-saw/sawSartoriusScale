@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2009-2024 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2009-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -21,16 +21,12 @@ set (REQUIRED_CISST_LIBRARIES cisstCommon
                               cisstMultiTask
                               cisstMultiTaskQt
                               cisstParameterTypes
-                              cisstParameterTypesQt
-                              cisstQt)
+                              cisstParameterTypesQt)
 
 # find cisst and make sure the required libraries have been compiled
 find_package (cisst 1.2.1 COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 if (cisst_FOUND_AS_REQUIRED)
-
-  # load cisst configuration
-  include (${CISST_USE_FILE})
 
   # catkin/ROS paths
   cisst_set_output_path ()
@@ -51,10 +47,8 @@ if (cisst_FOUND_AS_REQUIRED)
 
     # link against non cisst libraries and saw components
     target_link_libraries (sawSartoriusScaleQtExample
-                           ${sawSartoriusScale_LIBRARIES})
-
-    # link against cisst libraries (and dependencies)
-    cisst_target_link_libraries (sawSartoriusScaleQtExample ${REQUIRED_CISST_LIBRARIES})
+                           ${sawSartoriusScale_LIBRARIES}
+                           ${cisst_LIBRARIES})
 
     install (TARGETS sawSartoriusScaleQtExample
              COMPONENT sawSartoriusScale-Examples
