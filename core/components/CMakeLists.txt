@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2011-2024 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2011-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -19,12 +19,9 @@ set (REQUIRED_CISST_LIBRARIES cisstCommon
                               cisstMultiTask
                               cisstParameterTypes)
 
-find_package (cisst 1.2.1 REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.2.1 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-if (cisst_FOUND_AS_REQUIRED)
-
-  # load cisst configuration
-  include (${CISST_USE_FILE})
+if (cisst_FOUND)
 
   # catkin/ROS paths
   cisst_set_output_path ()
@@ -50,7 +47,7 @@ if (cisst_FOUND_AS_REQUIRED)
   set_target_properties (sawSartoriusScale PROPERTIES
                          VERSION ${sawSartoriusScale_VERSION}
                          FOLDER "sawSartoriusScale")
-  cisst_target_link_libraries (sawSartoriusScale ${REQUIRED_CISST_LIBRARIES})
+  target_link_libraries (sawSartoriusScale ${cisst_LIBRARIES})
 
   # Install target for headers and library
   install (DIRECTORY
@@ -64,6 +61,6 @@ if (cisst_FOUND_AS_REQUIRED)
            LIBRARY DESTINATION lib
            ARCHIVE DESTINATION lib)
 
-else (cisst_FOUND_AS_REQUIRED)
+else (cisst_FOUND)
   message ("Information: code in ${CMAKE_CURRENT_SOURCE_DIR} will not be compiled, it requires ${REQUIRED_CISST_LIBRARIES}")
-endif (cisst_FOUND_AS_REQUIRED)
+endif (cisst_FOUND)

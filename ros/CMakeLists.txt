@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2009-2024 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2009-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -50,16 +50,12 @@ set (REQUIRED_CISST_LIBRARIES cisstCommon
   cisstMultiTask
   cisstMultiTaskQt
   cisstParameterTypes
-  cisstParameterTypesQt
-  cisstQt)
+  cisstParameterTypesQt)
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.2.1 REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.2.1 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-if (cisst_FOUND_AS_REQUIRED)
-
-  # load cisst configuration
-  include (${CISST_USE_FILE})
+if (cisst_FOUND)
 
   # set paths
   cisst_set_output_path ()
@@ -83,10 +79,8 @@ if (cisst_FOUND_AS_REQUIRED)
     add_executable (sartorius_scale mainQt.cpp)
     target_link_libraries (sartorius_scale
       ${sawSartoriusScale_LIBRARIES}
-      ${catkin_LIBRARIES})
-
-    # link against cisst libraries (and dependencies)
-    cisst_target_link_libraries (sartorius_scale ${REQUIRED_CISST_LIBRARIES})
+      ${catkin_LIBRARIES}
+      ${cisst_LIBRARIES})
 
     install (TARGETS sartorius_scale
       LIBRARY DESTINATION lib/${PROJECT_NAME}
@@ -107,4 +101,4 @@ if (cisst_FOUND_AS_REQUIRED)
     message ("Information: code in ${CMAKE_CURRENT_SOURCE_DIR} will not be compiled, it requires sawSartoriusScale_FOUND")
   endif (sawSartoriusScale_FOUND)
 
-endif (cisst_FOUND_AS_REQUIRED)
+endif (cisst_FOUND)

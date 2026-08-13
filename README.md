@@ -34,13 +34,7 @@ logout/login for the new group membership to take effect.
 
 ## Build
 
-You can find some documentation re. compiling cisst and SAW components
-for in the dVRK wiki:
-* [ROS 1](https://github.com/jhu-dvrk/sawIntuitiveResearchKit/wiki/CatkinBuild)
-* [ROS 2](https://github.com/jhu-dvrk/sawIntuitiveResearchKit/wiki/BuildROS2)
-
-For Linux with ROS, we provide a VCS files to retrieve all the git
-repositories you need for sawSartoriusScale in the `vcs` directory.
+See https://github.com/jhu-saw/vcs for download and build instructions.  Use the VCS files for `sartorius-scale`.
 
 ## Configuring the scale
 
