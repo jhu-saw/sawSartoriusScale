@@ -9,8 +9,8 @@
 #
 # --- end cisst license ---
 
-cmake_minimum_required(VERSION 3.10)
-project (sartorius_scale VERSION 1.1.0)
+cmake_minimum_required(VERSION 3.16)
+project (sartorius_scale VERSION 1.2.0)
 
 # first test for ROS1
 find_package (catkin QUIET
@@ -53,7 +53,7 @@ set (REQUIRED_CISST_LIBRARIES cisstCommon
   cisstParameterTypesQt)
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.2.1 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 if (cisst_FOUND)
 
