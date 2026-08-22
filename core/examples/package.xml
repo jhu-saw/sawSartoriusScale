@@ -1,6 +1,6 @@
 <package>
   <name>saw_sartorius_scale_examples</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <description>sawSartoriusScale examples</description>
   <maintainer email="anton.deguet@jhu.edu">Anton Deguet</maintainer>
   <license>cisst</license>

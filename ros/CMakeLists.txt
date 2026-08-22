@@ -10,7 +10,7 @@
 # --- end cisst license ---
 
 cmake_minimum_required(VERSION 3.10)
-project (sartorius_scale VERSION 1.1.0)
+project (sartorius_scale VERSION 1.2.0)
 
 # first test for ROS1
 find_package (catkin QUIET
